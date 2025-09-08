@@ -1,6 +1,6 @@
-import { useState } from 'react';
+// pages/index.js
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [channelUrl, setChannelUrl] = useState('');
@@ -8,6 +8,32 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Check for saved theme preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark-mode');
+    } else if (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark-mode');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +42,6 @@ export default function Home() {
     setResults(null);
 
     try {
-      // Use the simple API that doesn't need database
       const response = await fetch('/api/analyze-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,145 +63,148 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Head>
-        <title>YouTube Channel Keyword Monitor</title>
-        <meta name="description" content="Monitor YouTube channels for keywords" />
+        <title>YouTube Channel Keyword Monitor - HYDER MEDIA</title>
+        <meta name="description" content="Analyze YouTube channels for keywords" />
         <link rel="icon" href="/favicon.ico" />
+        {/* Google Fonts */}
+        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          YouTube Channel Keyword Monitor
-        </h1>
-
-        <div className={styles.description}>
-          Enter a YouTube channel URL and a keyword to search for in recent videos
+      {/* Header */}
+      <header className="header">
+        <div className="container">
+          <nav className="header__nav">
+            <a href="/" className="header__logo">HYDER MEDIA</a>
+            <button className="theme-toggle" onClick={toggleTheme}>
+              <span className="theme-text">{darkMode ? 'LIGHT MODE' : 'DARK MODE'}</span>
+            </button>
+          </nav>
         </div>
-        
-        <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '500px', margin: '2rem 0' }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-              Channel URL:
-              <input
-                type="text"
-                value={channelUrl}
-                onChange={(e) => setChannelUrl(e.target.value)}
-                placeholder="https://youtube.com/@channelname or channel ID"
-                required
-                style={{ 
-                  width: '100%', 
-                  padding: '0.5rem', 
-                  marginTop: '0.25rem',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc'
-                }}
-              />
-            </label>
-          </div>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-              Keyword to Search:
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="e.g., sponsor, product, etc."
-                required
-                style={{ 
-                  width: '100%', 
-                  padding: '0.5rem', 
-                  marginTop: '0.25rem',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc'
-                }}
-              />
-            </label>
-          </div>
-          
-          <button 
-            type="submit" 
-            disabled={loading}
-            style={{ 
-              width: '100%',
-              padding: '0.75rem', 
-              background: loading ? '#ccc' : '#0070f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {loading ? 'Analyzing...' : 'Analyze Channel'}
-          </button>
-        </form>
+      </header>
 
-        {error && (
-          <div style={{ 
-            color: '#ff0000', 
-            padding: '1rem', 
-            background: '#ffeeee',
-            borderRadius: '4px',
-            marginBottom: '1rem',
-            maxWidth: '500px',
-            width: '100%'
-          }}>
-            Error: {error}
-          </div>
-        )}
-
-        {results && (
-          <div style={{ width: '100%', maxWidth: '800px' }}>
-            <h2>Analysis Results</h2>
-            <div style={{ 
-              background: '#f5f5f5', 
-              padding: '1rem', 
-              borderRadius: '4px',
-              marginBottom: '1rem'
-            }}>
-              <p><strong>Channel:</strong> {results.channel}</p>
-              <p><strong>Videos Analyzed:</strong> {results.videosAnalyzed}</p>
-              <p><strong>Videos with "{keyword}":</strong> {results.keywordFound}</p>
+      {/* Main Content */}
+      <main className="tool--section">
+        <div className="container">
+          <div className="tool__wrapper">
+            {/* Tool Header */}
+            <div className="tool__header">
+              <p className="tool__badge">YouTube Analysis Tool</p>
+              <h1 className="tool__title">Channel Keyword Monitor</h1>
+              <p className="tool__description">
+                Analyze any YouTube channel's recent videos for specific keywords. Perfect for competitive research and content strategy.
+              </p>
             </div>
-            
-            {results.results.length > 0 ? (
-              <div>
-                <h3>Videos Containing Keyword:</h3>
-                {results.results.map((video) => (
-                  <div key={video.videoId} style={{ 
-                    border: '1px solid #ddd', 
-                    padding: '1rem', 
-                    marginBottom: '1rem',
-                    borderRadius: '4px',
-                    background: 'white'
-                  }}>
-                    <h4 style={{ margin: '0 0 0.5rem 0' }}>{video.title}</h4>
-                    <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                      Mentions: {video.mentions.total} 
-                      (Title: {video.mentions.title}, Description: {video.mentions.description})
-                    </p>
-                    <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      {video.description?.substring(0, 200)}...
-                    </p>
-                    <a 
-                      href={video.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ color: '#0070f3', textDecoration: 'none' }}
-                    >
-                      Watch Video →
-                    </a>
-                  </div>
-                ))}
+
+            {/* Search Form */}
+            <form className="tool__form" onSubmit={handleSubmit}>
+              <div className="form__group">
+                <label className="form__label" htmlFor="channelUrl">
+                  Channel URL
+                </label>
+                <input
+                  type="text"
+                  id="channelUrl"
+                  className="form__input"
+                  value={channelUrl}
+                  onChange={(e) => setChannelUrl(e.target.value)}
+                  placeholder="https://youtube.com/@channelname or channel ID"
+                  required
+                />
               </div>
-            ) : (
-              <p>No videos found containing the keyword "{keyword}"</p>
+              
+              <div className="form__group">
+                <label className="form__label" htmlFor="keyword">
+                  Keyword to Search
+                </label>
+                <input
+                  type="text"
+                  id="keyword"
+                  className="form__input"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="e.g., sponsor, product, brand name"
+                  required
+                />
+              </div>
+              
+              <button type="submit" className="form__submit" disabled={loading}>
+                {loading ? (
+                  <>Analyzing<span className="loading"></span></>
+                ) : (
+                  'Analyze Channel'
+                )}
+              </button>
+            </form>
+
+            {/* Error Message */}
+            {error && (
+              <div className="error__message">
+                Error: {error}
+              </div>
+            )}
+
+            {/* Results Section */}
+            {results && (
+              <div className="results__container">
+                <div className="results__summary">
+                  <h2>Analysis Results</h2>
+                  <div className="results__stat">
+                    <strong>Channel:</strong>
+                    <span>{results.channel}</span>
+                  </div>
+                  <div className="results__stat">
+                    <strong>Videos Analyzed:</strong>
+                    <span>{results.videosAnalyzed}</span>
+                  </div>
+                  <div className="results__stat">
+                    <strong>Videos with "{keyword}":</strong>
+                    <span>{results.keywordFound}</span>
+                  </div>
+                </div>
+
+                {results.results && results.results.length > 0 ? (
+                  <div className="results__list">
+                    <h3>Videos Containing Keyword</h3>
+                    {results.results.map((video) => (
+                      <div key={video.videoId} className="video__card">
+                        <h4 className="video__title">{video.title}</h4>
+                        <p className="video__mentions">
+                          Mentions: {video.mentions.total} 
+                          (Title: {video.mentions.title}, Description: {video.mentions.description})
+                        </p>
+                        <p className="video__description">
+                          {video.description?.substring(0, 200)}...
+                        </p>
+                        <a 
+                          href={video.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="video__link"
+                        >
+                          Watch Video
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-results">
+                    <p>No videos found containing the keyword "{keyword}"</p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        )}
+        </div>
       </main>
-    </div>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <p className="footer__text">© 2024 HYDER MEDIA. All rights reserved.</p>
+        </div>
+      </footer>
+    </>
   );
 }
