@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Channel {
+  id          String   @id @default(uuid())
+  channelId   String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  videos      Video[]
+}
+
+model Video {
+  id          String     @id @default(uuid())
+  videoId     String     @unique
+  title       String
+  description String?
+  channelId   String
+  channel     Channel    @relation(fields: [channelId], references: [id])
+  transcript  String?
+  publishedAt DateTime
+  createdAt   DateTime   @default(now())
+  analyses    Analysis[]
+}
+
+model Analysis {
+  id         String   @id @default(uuid())
+  videoId    String
+  video      Video    @relation(fields: [videoId], references: [id])
+  keyword    String
+  mentions   Int
+  context    Json
+  createdAt  DateTime @default(now())
+}
