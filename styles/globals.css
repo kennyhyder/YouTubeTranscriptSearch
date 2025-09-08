@@ -1,4 +1,4 @@
-/* styles/globals.css */
+/* styles/globals.css - Enhanced Version */
 
 /* ================================== */
 /* :: GLOBAL Variable Define CSS  */
@@ -177,8 +177,9 @@ html.dark-mode .tool__title {
 .tool__description {
   font-size: 1.125rem;
   color: var(--text-color);
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 html.dark-mode .tool__description {
@@ -188,7 +189,7 @@ html.dark-mode .tool__description {
 
 /* Form Styles */
 .tool__form {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto 48px;
   background: var(--white-color);
   padding: 32px;
@@ -218,9 +219,9 @@ html.dark-mode .form__label {
   color: var(--white-color);
 }
 
-.form__input {
+.form__input,
+.form__textarea {
   width: 100%;
-  height: 50px;
   border: 2px solid var(--dark-brown-color);
   padding: 12px 16px;
   font-size: 15px;
@@ -228,30 +229,57 @@ html.dark-mode .form__label {
   background-color: var(--white-color);
   font-family: var(--roboto-mono);
   transition: all 0.3s ease;
+  resize: vertical;
 }
 
-html.dark-mode .form__input {
+.form__input {
+  height: 50px;
+}
+
+.form__textarea {
+  min-height: 120px;
+  line-height: 1.5;
+}
+
+html.dark-mode .form__input,
+html.dark-mode .form__textarea {
   background-color: var(--dark-purple-color);
   color: var(--white-color);
   border-color: var(--yellow-color);
 }
 
-.form__input:focus {
+.form__input:focus,
+.form__textarea:focus {
   outline: none;
   border-color: var(--deep-orange-color);
 }
 
-html.dark-mode .form__input:focus {
+html.dark-mode .form__input:focus,
+html.dark-mode .form__textarea:focus {
   border-color: var(--sand-yellow-color);
 }
 
-.form__input::placeholder {
+.form__input::placeholder,
+.form__textarea::placeholder {
   color: #999;
   font-size: 0.875rem;
 }
 
-html.dark-mode .form__input::placeholder {
+html.dark-mode .form__input::placeholder,
+html.dark-mode .form__textarea::placeholder {
   color: rgba(255, 255, 255, 0.5);
+}
+
+.form__help {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--light-text-color);
+  font-style: italic;
+}
+
+html.dark-mode .form__help {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .form__submit {
@@ -292,7 +320,7 @@ html.dark-mode .form__submit:hover:not(:disabled) {
 
 /* Results Section */
 .results__container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -342,27 +370,74 @@ html.dark-mode .results__stat strong {
   color: var(--yellow-color);
 }
 
-.results__list h3 {
+/* Channel Section */
+.channel__section {
+  margin-bottom: 48px;
+  border: 2px solid var(--dark-brown-color);
+  background: var(--white-color);
+}
+
+html.dark-mode .channel__section {
+  border-color: var(--yellow-color);
+  background: var(--purple-color);
+}
+
+.channel__header {
+  padding: 20px;
+  background: var(--light-body-color);
+  border-bottom: 2px solid var(--dark-brown-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+html.dark-mode .channel__header {
+  background: rgba(225, 212, 43, 0.1);
+  border-color: var(--yellow-color);
+}
+
+.channel__name {
   font-family: var(--roboto-mono);
   font-size: 1.25rem;
   color: var(--dark-brown-color);
-  margin-bottom: 24px;
+  margin: 0;
 }
 
-html.dark-mode .results__list h3 {
+html.dark-mode .channel__name {
   color: var(--yellow-color);
 }
 
+.channel__stats {
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+html.dark-mode .channel__stats {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.channel__error {
+  font-size: 0.875rem;
+  color: var(--crimson-red-color);
+}
+
+.channel__videos {
+  padding: 20px;
+}
+
+/* Video Cards */
 .video__card {
-  background: var(--white-color);
-  border: 2px solid var(--dark-brown-color);
+  background: var(--light-body-color);
+  border: 1px solid var(--dark-brown-color);
   padding: 20px;
   margin-bottom: 16px;
   transition: all 0.3s ease;
 }
 
 html.dark-mode .video__card {
-  background: var(--purple-color);
+  background: var(--dark-purple-color);
   border-color: var(--yellow-color);
 }
 
@@ -375,7 +450,7 @@ html.dark-mode .video__card {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--dark-brown-color);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 html.dark-mode .video__title {
@@ -383,23 +458,126 @@ html.dark-mode .video__title {
 }
 
 .video__mentions {
-  font-size: 0.875rem;
-  color: var(--deep-orange-color);
+  display: flex;
+  gap: 12px;
+  align-items: center;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-html.dark-mode .video__mentions {
-  color: var(--sand-yellow-color);
+.mention__badge {
+  background: var(--deep-orange-color);
+  color: var(--white-color);
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+html.dark-mode .mention__badge {
+  background: var(--sand-yellow-color);
+  color: var(--black-color);
+}
+
+.mention__detail {
+  font-size: 0.75rem;
+  color: var(--light-text-color);
+}
+
+html.dark-mode .mention__detail {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .video__description {
   color: var(--text-color);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   line-height: 1.5;
 }
 
 html.dark-mode .video__description {
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* Timestamps Section */
+.video__timestamps {
+  background: rgba(121, 82, 50, 0.05);
+  padding: 12px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--deep-orange-color);
+}
+
+html.dark-mode .video__timestamps {
+  background: rgba(225, 212, 43, 0.05);
+  border-color: var(--yellow-color);
+}
+
+.timestamps__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--dark-brown-color);
+  margin-bottom: 8px;
+}
+
+html.dark-mode .timestamps__label {
+  color: var(--yellow-color);
+}
+
+.timestamps__list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.timestamp__link {
+  background: var(--dark-brown-color);
+  color: var(--white-color);
+  padding: 6px 12px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+html.dark-mode .timestamp__link {
+  background: var(--yellow-color);
+  color: var(--black-color);
+}
+
+.timestamp__link:hover {
+  background: var(--deep-orange-color);
+  transform: translateY(-2px);
+}
+
+html.dark-mode .timestamp__link:hover {
+  background: var(--sand-yellow-color);
+}
+
+.timestamp__context {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  font-style: italic;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+}
+
+html.dark-mode .timestamp__context {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Video Actions */
+.video__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(121, 82, 50, 0.2);
+}
+
+html.dark-mode .video__actions {
+  border-color: rgba(225, 212, 43, 0.2);
 }
 
 .video__link {
@@ -433,6 +611,28 @@ html.dark-mode .video__link:hover {
   transform: translateX(4px);
 }
 
+.mention__note {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--deep-orange-color);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+html.dark-mode .mention__note {
+  color: var(--sand-yellow-color);
+}
+
+.video__duration {
+  font-size: 0.875rem;
+  color: var(--light-text-color);
+  margin-left: auto;
+}
+
+html.dark-mode .video__date {
+  color: rgba(255, 255, 255, 0.6);
+}
+
 /* Error Message */
 .error__message {
   background: #ffeeee;
@@ -440,7 +640,7 @@ html.dark-mode .video__link:hover {
   color: var(--crimson-red-color);
   padding: 16px;
   margin-bottom: 24px;
-  max-width: 600px;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -453,7 +653,7 @@ html.dark-mode .error__message {
 
 .no-results {
   text-align: center;
-  padding: 48px 24px;
+  padding: 32px 24px;
   color: var(--text-color);
 }
 
@@ -521,5 +721,21 @@ html.dark-mode .footer__text {
   
   .container {
     padding: 0 16px;
+  }
+  
+  .channel__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .timestamps__list {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .video__actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 }

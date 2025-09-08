@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
-  const [channelUrl, setChannelUrl] = useState('');
+  const [channelUrls, setChannelUrls] = useState('');
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
@@ -41,17 +41,38 @@ export default function Home() {
     setError('');
     setResults(null);
 
+    // Parse channel URLs (split by newlines or commas)
+    const urlList = channelUrls
+      .split(/[\n,]/)
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
+
+    if (urlList.length === 0) {
+      setError('Please enter at least one channel URL');
+      setLoading(false);
+      return;
+    }
+
+    if (urlList.length > 10) {
+      setError('Maximum 10 channels at a time');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('/api/analyze-simple', {
+      const response = await fetch('/api/analyze-multi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channelUrl, keyword })
+        body: JSON.stringify({ 
+          channelUrls: urlList, 
+          keyword 
+        })
       });
 
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze channel');
+        throw new Error(data.error || 'Failed to analyze channels');
       }
 
       setResults(data);
@@ -65,8 +86,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>YouTube Channel Keyword Monitor - HYDER MEDIA</title>
-        <meta name="description" content="Analyze YouTube channels for keywords" />
+        <title>YouTube Transcript Search - HYDER MEDIA</title>
+        <meta name="description" content="Search YouTube video transcripts for keywords with precise timestamps" />
         <link rel="icon" href="/favicon.ico" />
         {/* Google Fonts */}
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
@@ -90,33 +111,36 @@ export default function Home() {
           <div className="tool__wrapper">
             {/* Tool Header */}
             <div className="tool__header">
-              <p className="tool__badge">YouTube Analysis Tool</p>
-              <h1 className="tool__title">Channel Keyword Monitor</h1>
+              <p className="tool__badge">YouTube Transcript Search v2.0</p>
+              <h1 className="tool__title">Multi-Channel Transcript Analyzer</h1>
               <p className="tool__description">
-                Analyze any YouTube channel's recent videos for specific keywords. Perfect for competitive research and content strategy.
+                Search video transcripts across multiple YouTube channels. Find exact moments where keywords are spoken with direct timestamp links.
               </p>
             </div>
 
             {/* Search Form */}
             <form className="tool__form" onSubmit={handleSubmit}>
               <div className="form__group">
-                <label className="form__label" htmlFor="channelUrl">
-                  Channel URL
+                <label className="form__label" htmlFor="channelUrls">
+                  Channel URLs (One per line, max 10)
                 </label>
-                <input
-                  type="text"
-                  id="channelUrl"
-                  className="form__input"
-                  value={channelUrl}
-                  onChange={(e) => setChannelUrl(e.target.value)}
-                  placeholder="https://youtube.com/@channelname or channel ID"
+                <textarea
+                  id="channelUrls"
+                  className="form__textarea"
+                  value={channelUrls}
+                  onChange={(e) => setChannelUrls(e.target.value)}
+                  placeholder="https://youtube.com/@channel1&#10;https://youtube.com/@channel2&#10;@channel3&#10;UCX6OQ3DkcsbYNE6H8uQQuVA"
+                  rows={5}
                   required
                 />
+                <span className="form__help">
+                  Enter multiple channel URLs, handles (@username), or channel IDs. One per line or comma-separated.
+                </span>
               </div>
               
               <div className="form__group">
                 <label className="form__label" htmlFor="keyword">
-                  Keyword to Search
+                  Keyword to Search in Transcripts
                 </label>
                 <input
                   type="text"
@@ -131,9 +155,9 @@ export default function Home() {
               
               <button type="submit" className="form__submit" disabled={loading}>
                 {loading ? (
-                  <>Analyzing<span className="loading"></span></>
+                  <>Searching Transcripts<span className="loading"></span></>
                 ) : (
-                  'Analyze Channel'
+                  'Search All Transcripts'
                 )}
               </button>
             </form>
@@ -148,51 +172,117 @@ export default function Home() {
             {/* Results Section */}
             {results && (
               <div className="results__container">
+                {/* Overall Summary */}
                 <div className="results__summary">
-                  <h2>Analysis Results</h2>
+                  <h2>Search Results</h2>
                   <div className="results__stat">
-                    <strong>Channel:</strong>
-                    <span>{results.channel}</span>
+                    <strong>Channels Analyzed:</strong>
+                    <span>{results.channelsAnalyzed}</span>
                   </div>
                   <div className="results__stat">
-                    <strong>Videos Analyzed:</strong>
-                    <span>{results.videosAnalyzed}</span>
+                    <strong>Total Videos with Transcript Matches:</strong>
+                    <span>{results.totalVideosFound}</span>
                   </div>
                   <div className="results__stat">
-                    <strong>Videos with "{keyword}":</strong>
-                    <span>{results.keywordFound}</span>
+                    <strong>Keyword Searched:</strong>
+                    <span>"{results.keyword}"</span>
                   </div>
                 </div>
 
-                {results.results && results.results.length > 0 ? (
-                  <div className="results__list">
-                    <h3>Videos Containing Keyword</h3>
-                    {results.results.map((video) => (
-                      <div key={video.videoId} className="video__card">
-                        <h4 className="video__title">{video.title}</h4>
-                        <p className="video__mentions">
-                          Mentions: {video.mentions.total} 
-                          (Title: {video.mentions.title}, Description: {video.mentions.description})
-                        </p>
-                        <p className="video__description">
-                          {video.description?.substring(0, 200)}...
-                        </p>
-                        <a 
-                          href={video.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="video__link"
-                        >
-                          Watch Video
-                        </a>
+                {/* Results by Channel */}
+                {results.channels && results.channels.map((channel, idx) => (
+                  <div key={idx} className="channel__section">
+                    <div className="channel__header">
+                      <h3 className="channel__name">{channel.channelName}</h3>
+                      {channel.error ? (
+                        <span className="channel__error">Error: {channel.error}</span>
+                      ) : (
+                        <span className="channel__stats">
+                          {channel.videosWithKeyword} videos with transcript matches (checked {channel.videosAnalyzed} videos)
+                        </span>
+                      )}
+                    </div>
+
+                    {channel.results && channel.results.length > 0 ? (
+                      <div className="channel__videos">
+                        {channel.results.map((video) => (
+                          <div key={video.videoId} className="video__card">
+                            <h4 className="video__title">{video.title}</h4>
+                            
+                            <div className="video__mentions">
+                              <span className="mention__badge">
+                                {video.mentions.estimated ? (
+                                  <>
+                                    {video.mentions.total} mention{video.mentions.total !== 1 ? 's' : ''} 
+                                    (Title: {video.mentions.title}, Desc: {video.mentions.description}, Tags: {video.mentions.tags || 0})
+                                  </>
+                                ) : (
+                                  <>
+                                    {video.mentions.transcript} transcript mention{video.mentions.transcript !== 1 ? 's' : ''}
+                                  </>
+                                )}
+                              </span>
+                              {video.mentions.estimated && (
+                                <span className="mention__note">⚠️ No transcript available - searched description</span>
+                              )}
+                            </div>
+                            
+                            <p className="video__description">
+                              {video.description?.substring(0, 150)}...
+                            </p>
+                            
+                            {/* Timestamp Links */}
+                            {video.timestamps && video.timestamps.length > 0 && (
+                              <div className="video__timestamps">
+                                <h5 className="timestamps__label">Jump to mentions:</h5>
+                                <div className="timestamps__list">
+                                  {video.timestamps.map((timestamp, tsIdx) => (
+                                    <a 
+                                      key={tsIdx}
+                                      href={timestamp.url || `${video.url}&t=${Math.floor(timestamp.time)}s`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="timestamp__link"
+                                      title={timestamp.context}
+                                    >
+                                      {timestamp.formattedTime}
+                                    </a>
+                                  ))}
+                                </div>
+                                {video.timestamps[0]?.context && (
+                                  <div className="timestamp__context">
+                                    <em>"...{video.timestamps[0].context}..."</em>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
+                            <div className="video__actions">
+                              <a 
+                                href={video.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="video__link"
+                              >
+                                Watch Full Video
+                              </a>
+                              <span className="video__date">
+                                {new Date(video.publishedAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <div className="no-results">
+                        {channel.error ? 
+                          `Could not analyze this channel` : 
+                          `No videos found with "${results.keyword}" in transcripts`
+                        }
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="no-results">
-                    <p>No videos found containing the keyword "{keyword}"</p>
-                  </div>
-                )}
+                ))}
               </div>
             )}
           </div>
